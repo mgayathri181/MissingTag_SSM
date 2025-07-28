@@ -1,0 +1,44 @@
+import boto3
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+def lambda_handler(event, context):
+    try:
+        logger.info(f"✅ Received event: {event}")
+        region = event['region']
+        instance_id = event['detail']['resourceId']
+
+        logger.info(f"🔍 Checking instance: {instance_id} in region {region}")
+
+        ec2 = boto3.client('ec2', region_name=region)
+        response = ec2.describe_instances(InstanceIds=[instance_id])
+        logger.info(f"🟡 EC2 DescribeInstances response: {response}")
+
+        reservations = response.get('Reservations', [])
+        if not reservations:
+            raise Exception(f"No reservation info found for instance {instance_id}")
+
+        tags = reservations[0]['Instances'][0].get('Tags', [])
+        tag_keys = [tag['Key'] for tag in tags]
+
+        # Check for required tags
+        required_tags = {
+            'Environment': 'default-env',
+            'Owner': 'default-owner'
+        }
+
+        missing_tags = {k: v for k, v in required_tags.items() if k not in tag_keys}
+
+        if missing_tags:
+            logger.info(f"🛠 Missing tags: {missing_tags}")
+            tag_list = [{'Key': k, 'Value': v} for k, v in missing_tags.items()]
+            ec2.create_tags(Resources=[instance_id], Tags=tag_list)
+            logger.info(f"✅ Added missing tags to instance {instance_id}")
+        else:
+            logger.info(f"✅ All required tags present on instance {instance_id}")
+
+    except Exception as e:
+        logger.error(f"❌ Error processing instance {instance_id}: {str(e)}")
+        raise e
