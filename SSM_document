@@ -1,0 +1,25 @@
+description: Invokes Lambda to remediate EC2 tagging
+schemaVersion: '0.3'
+assumeRole: '{{ AutomationAssumeRole }}'
+parameters:
+  InstanceId:
+    type: String
+    description: (Required) EC2 instance ID
+  AutomationAssumeRole:
+    type: String
+    description: (Required) Role ARN assumed by SSM
+mainSteps:
+  - name: InvokeLambda
+    action: aws:invokeLambdaFunction
+    timeoutSeconds: 60
+    isEnd: true
+    onFailure: Abort
+    inputs:
+      FunctionName: arn:aws:lambda:ca-central-1:470951427804:function:test_tags
+      Payload: |
+        {
+          "region": "ca-central-1",
+          "detail": {
+            "resourceId": "{{ InstanceId }}"
+          }
+        }
