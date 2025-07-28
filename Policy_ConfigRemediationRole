@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SSMAutomationActions",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:StartAutomationExecution",
+        "ssm:GetAutomationExecution",
+        "ssm:DescribeAutomationExecutions",
+        "ssm:DescribeDocument",
+        "ssm:GetDocument",
+        "ssm:ListDocuments",
+        "ec2:DescribeInstances",
+        "ec2:CreateTags",
+        "ec2:DescribeTags",
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
