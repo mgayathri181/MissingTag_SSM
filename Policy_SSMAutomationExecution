@@ -1,0 +1,10 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:ca-central-1:470951427804:function:remediate-ec2-tags-lambda"
+    }
+  ]
+}
